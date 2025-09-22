@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # haloo
 
 A new Flutter project.
@@ -14,3 +15,7 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+=======
+# RENT-A-CAMERA-APP
+This is a camera rental application project using Flutter
+>>>>>>> 31ebe454abcb1f0b42718520e952beef3ff2df02
