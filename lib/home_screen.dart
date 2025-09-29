@@ -1,11 +1,15 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:badges/badges.dart' as badges;
 import 'models/item_rental.dart';
 import 'models/camera.dart';
 import 'models/lensa.dart';
 import 'models/aksesoris.dart';
-import 'cart.dart'; // gunakan wrapper Cart
+import 'cart.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+// notifier global untuk jumlah item di cart
+ValueNotifier<int> cartCount = ValueNotifier<int>(0);
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -40,7 +44,6 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Data barang berdasarkan kategori
     final Map<String, List<ItemRental>> kategori = {
       "Kamera": [
         Camera("Canon EOS 5D", 500000, "Kamera mirrorless full-frame", true),
@@ -81,10 +84,30 @@ class HomeScreen extends StatelessWidget {
             centerTitle: true,
             backgroundColor: Colors.indigo,
             actions: [
-              IconButton(
-                icon: const Icon(Icons.shopping_cart, color: Colors.white),
-                tooltip: "Keranjang",
-                onPressed: () => Navigator.pushNamed(context, '/cart'),
+              ValueListenableBuilder<int>(
+                valueListenable: cartCount,
+                builder: (context, value, child) {
+                  return IconButton(
+                    icon: badges.Badge(
+                      showBadge: value > 0,
+                      badgeContent: Text(
+                        value.toString(),
+                        style: const TextStyle(color: Colors.white, fontSize: 12),
+                      ),
+                      badgeStyle: const badges.BadgeStyle(
+                        badgeColor: Colors.red,
+                      ),
+                      child: const Icon(Icons.shopping_cart, color: Colors.white),
+                    ),
+                    tooltip: "Keranjang",
+                    onPressed: () async {
+                      // buka halaman cart
+                      await Navigator.pushNamed(context, '/cart');
+                      // update count setelah balik dari cart
+                      cartCount.value = Cart.items.length;
+                    },
+                  );
+                },
               ),
               IconButton(
                 icon: const Icon(Icons.logout, color: Colors.white),
@@ -97,7 +120,6 @@ class HomeScreen extends StatelessWidget {
       ),
       body: Stack(
         children: [
-          // Background image
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
@@ -106,23 +128,18 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           ),
-
-          // Blur effect
           BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
             child: Container(
-              color: Colors.black.withValues(alpha: 0.2), // efek gelap biar teks jelas
+              color: Colors.black.withOpacity(0.2),
             ),
           ),
-
-          // Content with animation
           ListView.builder(
             itemCount: kategori.length,
             itemBuilder: (context, kategoriIndex) {
               final kategoriNama = kategori.keys.elementAt(kategoriIndex);
               final items = kategori[kategoriNama]!;
 
-              // Animasi kategori fade-in
               return TweenAnimationBuilder<double>(
                 duration: Duration(milliseconds: 600 + (kategoriIndex * 200)),
                 curve: Curves.easeOut,
@@ -131,7 +148,7 @@ class HomeScreen extends StatelessWidget {
                   return Opacity(
                     opacity: value,
                     child: Transform.translate(
-                      offset: Offset(0, (1 - value) * 20), // sedikit naik saat fade
+                      offset: Offset(0, (1 - value) * 20),
                       child: child,
                     ),
                   );
@@ -139,7 +156,7 @@ class HomeScreen extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
                   child: Card(
-                    color: Colors.white.withValues(alpha: 0.9),
+                    color: Colors.white.withOpacity(0.9),
                     elevation: 4,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     child: ExpansionTile(
@@ -156,8 +173,6 @@ class HomeScreen extends StatelessWidget {
                           itemCount: items.length,
                           itemBuilder: (context, index) {
                             final item = items[index];
-
-                            // Animasi tiap item fade-in
                             return TweenAnimationBuilder<double>(
                               duration: Duration(milliseconds: 500 + (index * 150)),
                               curve: Curves.easeOut,
@@ -196,6 +211,7 @@ class HomeScreen extends StatelessWidget {
                                     onPressed: () {
                                       if (item.isTersedia) {
                                         Cart.tambah(item);
+                                        cartCount.value = Cart.items.length; // update badge
                                         ScaffoldMessenger.of(context).showSnackBar(
                                           SnackBar(
                                             backgroundColor: Colors.green,
