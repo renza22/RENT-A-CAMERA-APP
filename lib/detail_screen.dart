@@ -1,15 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+
 import 'models/item_rental.dart';
 import 'models/camera.dart';
 import 'models/lensa.dart';
 import 'models/aksesoris.dart';
 import 'cart_data.dart';
-import 'package:google_fonts/google_fonts.dart';
 
-class DetailScreen extends StatelessWidget {
+class DetailScreen extends StatefulWidget {
   final ItemRental item;
 
   const DetailScreen({super.key, required this.item});
+
+  @override
+  State<DetailScreen> createState() => _DetailScreenState();
+}
+
+class _DetailScreenState extends State<DetailScreen> {
+  double userRating = 0;
 
   /// Icon fallback kalau gak ada gambar
   IconData _getIconForItem(ItemRental item) {
@@ -42,12 +51,12 @@ class DetailScreen extends StatelessWidget {
       "GorillaPod 3K": "assets/gorillapod.jpg",
       "Weifeng WT-3110A": "assets/yunteng.jpg",
     };
-
     return imageMap[item.getNama];
   }
 
   @override
   Widget build(BuildContext context) {
+    final item = widget.item;
     final imagePath = _getImageForItem(item);
 
     return Scaffold(
@@ -116,7 +125,44 @@ class DetailScreen extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
 
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 10),
+
+                    // ⭐ Rating interaktif
+                    Column(
+                      children: [
+                        RatingBar.builder(
+                          initialRating: 4.0,
+                          minRating: 1,
+                          allowHalfRating: true,
+                          itemCount: 5,
+                          itemSize: 30,
+                          unratedColor: Colors.grey.shade300,
+                          itemPadding:
+                              const EdgeInsets.symmetric(horizontal: 2.0),
+                          itemBuilder: (context, _) => const Icon(
+                            Icons.star,
+                            color: Colors.amber,
+                          ),
+                          onRatingUpdate: (rating) {
+                            setState(() {
+                              userRating = rating;
+                            });
+                          },
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          userRating == 0
+                              ? "Belum diberi rating"
+                              : "Rating kamu: ${userRating.toStringAsFixed(1)}",
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            color: Colors.black54,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 16),
 
                     // Harga
                     Text(
