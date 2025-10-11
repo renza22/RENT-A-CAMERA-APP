@@ -1,13 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
-class SuccessScreen extends StatelessWidget {
-  final String deliveryMethod; // parameter tambahan
+class SuccessScreen extends StatefulWidget {
+  final String deliveryMethod;
 
   const SuccessScreen({
     super.key,
-    required this.deliveryMethod, // wajib diisi
+    required this.deliveryMethod,
   });
+
+  @override
+  State<SuccessScreen> createState() => _SuccessScreenState();
+}
+
+class _SuccessScreenState extends State<SuccessScreen> {
+  double userRating = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +27,7 @@ class SuccessScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Animasi icon success
+              // ✅ Animasi icon success
               Container(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
@@ -59,7 +67,7 @@ class SuccessScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
 
-              // Tambahan informasi metode pengantaran
+              // Informasi metode pengembalian
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -73,7 +81,7 @@ class SuccessScreen extends StatelessWidget {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        "Metode Pengembalian: $deliveryMethod",
+                        "Metode Pengembalian: ${widget.deliveryMethod}",
                         style: GoogleFonts.poppins(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
@@ -115,6 +123,45 @@ class SuccessScreen extends StatelessWidget {
                   ),
                   elevation: 3,
                 ),
+              ),
+
+              const SizedBox(height: 50),
+
+              // ⭐ Rating aplikasi
+              Divider(color: Colors.grey.shade300, thickness: 1),
+              const SizedBox(height: 20),
+              Text(
+                "Bagaimana pengalamanmu dengan aplikasi ini?",
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black87,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 10),
+              RatingBar.builder(
+                initialRating: userRating,
+                minRating: 1,
+                direction: Axis.horizontal,
+                allowHalfRating: true,
+                itemCount: 5,
+                itemSize: 32,
+                unratedColor: Colors.grey.shade300,
+                itemBuilder: (context, _) =>
+                    const Icon(Icons.star, color: Colors.amber),
+                onRatingUpdate: (rating) {
+                  setState(() => userRating = rating);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      backgroundColor: Colors.green,
+                      content: Text(
+                        "Terima kasih! Kamu memberi rating ${rating.toStringAsFixed(1)} ⭐ untuk aplikasi ini.",
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  );
+                },
               ),
             ],
           ),

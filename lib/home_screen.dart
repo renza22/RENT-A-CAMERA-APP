@@ -8,7 +8,6 @@ import 'models/aksesoris.dart';
 import 'cart.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// notifier global untuk jumlah item di cart
 ValueNotifier<int> cartCount = ValueNotifier<int>(0);
 
 class HomeScreen extends StatelessWidget {
@@ -18,7 +17,7 @@ class HomeScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text("Konfirmasi Logout"),
         content: const Text("Apakah Anda yakin ingin keluar dari aplikasi?"),
         actions: [
@@ -29,11 +28,14 @@ class HomeScreen extends StatelessWidget {
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.redAccent,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
             onPressed: () {
               Navigator.pop(context);
-              Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+              Navigator.pushNamedAndRemoveUntil(
+                  context, '/login', (route) => false);
             },
             child: const Text("Ya, Logout"),
           ),
@@ -69,20 +71,35 @@ class HomeScreen extends StatelessWidget {
     };
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(60),
+        preferredSize: const Size.fromHeight(70),
         child: ClipRRect(
           borderRadius: const BorderRadius.only(
             bottomLeft: Radius.circular(25),
             bottomRight: Radius.circular(25),
           ),
           child: AppBar(
+            elevation: 0,
+            flexibleSpace: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFF3F51B5), Color(0xFF5C6BC0)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+            ),
             title: Text(
-              "Rental Items",
-              style: GoogleFonts.robotoSlab(fontSize: 22, fontWeight: FontWeight.bold),
+              "Rent A Camera",
+              style: GoogleFonts.poppins(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+                letterSpacing: 1,
+              ),
             ),
             centerTitle: true,
-            backgroundColor: Colors.indigo,
             actions: [
               ValueListenableBuilder<int>(
                 valueListenable: cartCount,
@@ -95,15 +112,13 @@ class HomeScreen extends StatelessWidget {
                         style: const TextStyle(color: Colors.white, fontSize: 12),
                       ),
                       badgeStyle: const badges.BadgeStyle(
-                        badgeColor: Colors.red,
+                        badgeColor: Colors.redAccent,
                       ),
                       child: const Icon(Icons.shopping_cart, color: Colors.white),
                     ),
                     tooltip: "Keranjang",
                     onPressed: () async {
-                      // buka halaman cart
                       await Navigator.pushNamed(context, '/cart');
-                      // update count setelah balik dari cart
                       cartCount.value = Cart.items.length;
                     },
                   );
@@ -120,6 +135,7 @@ class HomeScreen extends StatelessWidget {
       ),
       body: Stack(
         children: [
+          // background + blur
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
@@ -129,114 +145,160 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
-            child: Container(
-              color: Colors.black.withValues(alpha: 0.2),
-            ),
+            filter: ImageFilter.blur(sigmaX: 3, sigmaY: 3),
+            child: Container(color: Colors.black.withValues(alpha: 0.4)),
           ),
+
+          // daftar kategori
           ListView.builder(
+            padding: const EdgeInsets.only(top: 100, bottom: 20),
             itemCount: kategori.length,
             itemBuilder: (context, kategoriIndex) {
               final kategoriNama = kategori.keys.elementAt(kategoriIndex);
               final items = kategori[kategoriNama]!;
 
-              return TweenAnimationBuilder<double>(
-                duration: Duration(milliseconds: 600 + (kategoriIndex * 200)),
-                curve: Curves.easeOut,
-                tween: Tween(begin: 0, end: 1),
-                builder: (context, value, child) {
-                  return Opacity(
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                child: TweenAnimationBuilder<double>(
+                  duration: Duration(milliseconds: 600 + (kategoriIndex * 200)),
+                  curve: Curves.easeOutCubic,
+                  tween: Tween(begin: 0, end: 1),
+                  builder: (context, value, child) => Opacity(
                     opacity: value,
                     child: Transform.translate(
-                      offset: Offset(0, (1 - value) * 20),
+                      offset: Offset(0, (1 - value) * 30),
                       child: child,
                     ),
-                  );
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
-                  child: Card(
-                    color: Colors.white.withValues(alpha: 0.9),
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    child: ExpansionTile(
-                      leading: const Icon(Icons.category, color: Colors.indigo),
-                      title: Text(
-                        kategoriNama,
-                        style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w600),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.white.withValues(alpha: 0.9),
+                            Colors.indigo.shade50.withValues(alpha: 0.8),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.1),
+                            blurRadius: 10,
+                            offset: const Offset(3, 3),
+                          ),
+                        ],
+                        borderRadius: BorderRadius.circular(20),
                       ),
-                      children: [
-                        const Divider(),
-                        ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: items.length,
-                          itemBuilder: (context, index) {
-                            final item = items[index];
-                            return TweenAnimationBuilder<double>(
-                              duration: Duration(milliseconds: 500 + (index * 150)),
-                              curve: Curves.easeOut,
-                              tween: Tween(begin: 0, end: 1),
-                              builder: (context, value, child) {
-                                return Opacity(
+                      child: ExpansionTile(
+                        leading: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.indigo.shade100,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.all(6),
+                          child: const Icon(Icons.category, color: Colors.indigo),
+                        ),
+                        title: Text(
+                          kategoriNama,
+                          style: GoogleFonts.poppins(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.indigo.shade900,
+                          ),
+                        ),
+                        children: [
+                          const Divider(thickness: 1),
+                          ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: items.length,
+                            itemBuilder: (context, index) {
+                              final item = items[index];
+                              return TweenAnimationBuilder<double>(
+                                duration: Duration(milliseconds: 500 + (index * 150)),
+                                curve: Curves.easeOutCubic,
+                                tween: Tween(begin: 0, end: 1),
+                                builder: (context, value, child) => Opacity(
                                   opacity: value,
                                   child: Transform.translate(
-                                    offset: Offset(0, (1 - value) * 15),
+                                    offset: Offset(0, (1 - value) * 20),
                                     child: child,
                                   ),
-                                );
-                              },
-                              child: Card(
-                                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                elevation: 2,
-                                child: ListTile(
-                                  leading: CircleAvatar(
-                                    backgroundColor: Colors.indigo.shade100,
-                                    child: const Icon(Icons.photo_camera, color: Colors.indigo),
+                                ),
+                                child: Card(
+                                  color: Colors.white.withValues(alpha: 0.9),
+                                  elevation: 4,
+                                  margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
                                   ),
-                                  title: Text(
-                                    item.getNama,
-                                    style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
-                                  ),
-                                  subtitle: Text(
-                                    "Rp ${item.getHarga}/hari",
-                                    style: TextStyle(
-                                      color: item.isTersedia ? Colors.green : Colors.red,
-                                      fontWeight: FontWeight.w500,
+                                  child: ListTile(
+                                    leading: CircleAvatar(
+                                      radius: 26,
+                                      backgroundColor: Colors.indigo.shade300,
+                                      child: const Icon(Icons.camera_alt, color: Colors.white),
                                     ),
-                                  ),
-                                  trailing: IconButton(
-                                    icon: const Icon(Icons.add_shopping_cart, color: Colors.indigo),
-                                    onPressed: () {
-                                      if (item.isTersedia) {
-                                        Cart.tambah(item);
-                                        cartCount.value = Cart.items.length; // update badge
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(
-                                            backgroundColor: Colors.green,
-                                            content: Text("${item.getNama} ditambahkan ke keranjang"),
-                                          ),
-                                        );
-                                      } else {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(
-                                            backgroundColor: Colors.redAccent,
-                                            content: Text("${item.getNama} sedang tidak tersedia"),
-                                          ),
-                                        );
-                                      }
+                                    title: Text(
+                                      item.getNama,
+                                      style: GoogleFonts.poppins(
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                    subtitle: Text(
+                                      "Rp ${item.getHarga}/hari",
+                                      style: TextStyle(
+                                        color: item.isTersedia
+                                            ? Colors.green.shade700
+                                            : Colors.redAccent,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    trailing: IconButton(
+                                      icon: const Icon(Icons.add_shopping_cart,
+                                          color: Colors.indigo),
+                                      onPressed: () {
+                                        if (item.isTersedia) {
+                                          Cart.tambah(item);
+                                          cartCount.value = Cart.items.length;
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                              backgroundColor: Colors.green.shade600,
+                                              behavior: SnackBarBehavior.floating,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(12),
+                                              ),
+                                              content: Text(
+                                                  "${item.getNama} ditambahkan ke keranjang"),
+                                            ),
+                                          );
+                                        } else {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                              backgroundColor: Colors.redAccent.shade200,
+                                              behavior: SnackBarBehavior.floating,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(12),
+                                              ),
+                                              content: Text(
+                                                  "${item.getNama} sedang tidak tersedia"),
+                                            ),
+                                          );
+                                        }
+                                      },
+                                    ),
+                                    onTap: () {
+                                      Navigator.pushNamed(context, '/detail', arguments: item);
                                     },
                                   ),
-                                  onTap: () {
-                                    Navigator.pushNamed(context, '/detail', arguments: item);
-                                  },
                                 ),
-                              ),
-                            );
-                          },
-                        ),
-                      ],
+                              );
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
